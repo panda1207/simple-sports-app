@@ -35,6 +35,17 @@ const DashboardScreen = () => {
   };
 
   useEffect(() => {
+    setLoading(true);
+    loadGames();
+    // Poll every 10 seconds
+    const interval = setInterval(() => {
+      loadGames();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     loadGames();
   }, []);
 

@@ -51,6 +51,26 @@ const GameDetailScreen = () => {
     fetchGame();
   }, []);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    // Only poll every 10 seconds if the game status is not final
+    if (game && game.status !== 'final') {
+      interval = setInterval(async () => {
+        try {
+          const updated = await getGame(gameId);
+          setGame(updated);
+        } catch (e) {
+          console.error('Failed to refresh game data:', e);
+        }
+      }, 10000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [gameId, game?.status]);
+
     useEffect(() => {
     if (game && game.homeTeam && game.awayTeam) {
       const newItems = [
