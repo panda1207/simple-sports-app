@@ -23,7 +23,7 @@ const statusColors = {
 const GameDetailScreen = () => {
   const route = useRoute<RouteProp<GameDetailScreenRouteParams, 'GameDetail'>>();
   const { gameId } = route.params;
-  const { user } = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,10 +128,10 @@ const GameDetailScreen = () => {
                 amount,
                 result: 'pending',
                 gameId: game.id,
-                time: Date.now(),
               };
               setSubmittedPrediction(prediction);
               setIsSubmitted(true);
+              setUser(res.user);
               await AsyncStorage.setItem(`prediction_${game.id}`, JSON.stringify(prediction));
               Alert.alert('Success', res.message);
             } else {

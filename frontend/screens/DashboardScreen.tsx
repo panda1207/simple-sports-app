@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { getGames } from '../utils/api';
 import GameCard from '../components/GameCard';
-import { Game } from '../types/types';
 
 type RootStackParamList = {
   Dashboard: undefined;

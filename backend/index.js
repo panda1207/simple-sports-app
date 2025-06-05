@@ -25,7 +25,7 @@ app.get("/user", (req, res) => {
 });
 
 app.post('/predict', (req, res) => {
-  const { userId, gameId, pick, amount } = req.body;
+  const { userId, gameId, pick, amount, result } = req.body;
   
   const user = data.user;
   if (!user || user.id !== userId) {
@@ -34,15 +34,8 @@ app.post('/predict', (req, res) => {
   if (user.balance < amount) return res.status(400).json({ error: 'Insufficient balance' });
 
   user.balance -= amount;
-  const prediction = {
-    gameId,
-    pick,
-    amount,
-    result: 'pending'
-  };
-  user.predictions.push(prediction);
 
-  res.json({ success: true, message: 'Prediction placed successfully' });
+  res.json({ success: true, message: 'Prediction placed successfully', user });
 });
 
 app.listen(PORT, () => {
