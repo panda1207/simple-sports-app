@@ -1,12 +1,44 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { UserContext } from '../context/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ProfileScreen = () => {
   const { user } = useContext(UserContext);
   const navigation = useNavigation<any>();
+  const [combinedPredictions, setCombinedPredictions] = useState(user.predictions);
+
+  useEffect(() => {
+    const loadSavedPredictions = async () => {
+      try {
+        const keys = await AsyncStorage.getAllKeys();
+        const predictionKeys = keys.filter(key => key.startsWith('prediction_'));
+        const saved = await AsyncStorage.multiGet(predictionKeys);
+        const savedPredictions = saved
+          .map(([key, value]) => value && JSON.parse(value))
+          .filter(Boolean);
+
+        const allPredictions = [...user.predictions];
+        savedPredictions.forEach(pred => {
+          if (!allPredictions.some(up =>
+            up.gameId === pred.gameId &&
+            up.pick === pred.pick &&
+            up.amount === pred.amount
+          )) {
+            allPredictions.push(pred);
+          }
+        });
+
+        setCombinedPredictions(allPredictions);
+      } catch (e) {
+        setCombinedPredictions(user.predictions);
+      }
+    };
+
+    loadSavedPredictions();
+  }, [user.predictions]);
 
   return (
     <View style={styles.container}>
@@ -21,8 +53,8 @@ const ProfileScreen = () => {
       </View>
       <Text style={styles.sectionTitle}>Predictions</Text>
       <FlatList
-        data={user.predictions}
-        keyExtractor={item => item.gameId}
+        data={combinedPredictions}
+        keyExtractor={item => item.gameId + '_' + item.pick + '_' + item.amount}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) => (
           <TouchableOpacity

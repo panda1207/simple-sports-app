@@ -5,6 +5,7 @@ import { getGame, submitPrediction } from '../utils/api';
 import { UserContext } from '../context/UserContext';
 import { Game } from '../types/types';
 import DropDownPicker from 'react-native-dropdown-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type GameDetailScreenRouteParams = {
   GameDetail: {
@@ -22,14 +23,17 @@ const statusColors = {
 const GameDetailScreen = () => {
   const route = useRoute<RouteProp<GameDetailScreenRouteParams, 'GameDetail'>>();
   const { gameId } = route.params;
+  const { user } = useContext(UserContext);
+
   const [game, setGame] = useState<Game | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [pick, setPick] = useState('');
   const [amount, setAmount] = useState('');
-  const { user } = useContext(UserContext);
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState([]);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedPrediction, setSubmittedPrediction] = useState<any>(null);
 
   useEffect(() => {
     const fetchGame = async () => {
@@ -51,8 +55,8 @@ const GameDetailScreen = () => {
     if (game && game.homeTeam && game.awayTeam) {
       const newItems = [
         { label: 'Select your pick...', value: '' },
-        { label: game.homeTeam.name, value: 'home' },
-        { label: game.awayTeam.name, value: 'away' },
+        { label: game.homeTeam.name, value: game.homeTeam.abbreviation },
+        { label: game.awayTeam.name, value: game.awayTeam.abbreviation },
       ];
       if (game.odds?.spread) {
         newItems.push({ label: `Spread (${game.odds.spread})`, value: 'spread' });
@@ -96,6 +100,19 @@ const GameDetailScreen = () => {
     }
   };
 
+  useEffect(() => {
+    const loadPrediction = async () => {
+      if (!gameId) return;
+      const key = `prediction_${gameId}`;
+      const saved = await AsyncStorage.getItem(key);
+      if (saved) {
+        setSubmittedPrediction(JSON.parse(saved));
+        setIsSubmitted(true);
+      }
+    };
+    loadPrediction();
+  }, [gameId]);
+
   const handleSubmit = () => {
     Alert.alert(
       'Confirm Prediction',
@@ -106,6 +123,16 @@ const GameDetailScreen = () => {
           try {
             const res = await submitPrediction(user.id, game.id, pick, Number(amount));
             if (res.success) {
+              const prediction = {
+                pick,
+                amount,
+                result: 'pending',
+                gameId: game.id,
+                time: Date.now(),
+              };
+              setSubmittedPrediction(prediction);
+              setIsSubmitted(true);
+              await AsyncStorage.setItem(`prediction_${game.id}`, JSON.stringify(prediction));
               Alert.alert('Success', res.message);
             } else {
               Alert.alert(res.error);
@@ -152,42 +179,58 @@ const GameDetailScreen = () => {
       </View>
       <View style={styles.form}>
         <Text style={styles.formTitle}>Your Prediction</Text>
-        <View style={styles.pickerWrapper}>
-          <DropDownPicker
-            open={open}
-            value={pick}
-            items={items}
-            setOpen={setOpen}
-            setValue={setPick}
-            setItems={setItems}
-            disabled={game.status !== 'scheduled'}
-            placeholder="Select your pick..."
-            style={[
-              styles.picker,
-              game.status !== 'scheduled' && styles.pickerDisabled
-            ]}
-            dropDownContainerStyle={styles.dropDownContainer}
-          />
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Amount"
-          value={amount}
-          onChangeText={setAmount}
-          keyboardType="numeric"
-        />
-        <TouchableOpacity
-          style={[
-            styles.button,
-            (game.status !== 'scheduled' || !pick || parseFloat(amount) <= 0) && styles.buttonDisabled
-          ]}
-          onPress={handleSubmit}
-          disabled={game.status !== 'scheduled' || !pick || parseFloat(amount) <= 0}
-        >
-          <Text style={styles.buttonText}>Submit Prediction</Text>
-        </TouchableOpacity>
-        {game.status !== 'scheduled' && (
-          <Text style={styles.closedText}>Predictions closed for this game.</Text>
+        {isSubmitted && submittedPrediction ? (
+          <View style={styles.predictionDetailBox}>
+            <Text style={styles.predictionDetailText}>
+              Pick: <Text style={styles.pick}>{submittedPrediction.pick}</Text>
+            </Text>
+            <Text style={styles.predictionDetailText}>
+              Amount: <Text style={styles.amount}>${submittedPrediction.amount}</Text>
+            </Text>
+            <Text style={styles.predictionDetailText}>
+              Status: <Text style={styles.pending}>Pending</Text>
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.pickerWrapper}>
+              <DropDownPicker
+                open={open}
+                value={pick}
+                items={items}
+                setOpen={setOpen}
+                setValue={setPick}
+                setItems={setItems}
+                disabled={game.status !== 'scheduled'}
+                placeholder="Select your pick..."
+                style={[
+                  styles.picker,
+                  game.status !== 'scheduled' && styles.pickerDisabled
+                ]}
+                dropDownContainerStyle={styles.dropDownContainer}
+              />
+            </View>
+            <TextInput
+              style={styles.input}
+              placeholder="Amount"
+              value={amount}
+              onChangeText={setAmount}
+              keyboardType="numeric"
+            />
+            <TouchableOpacity
+              style={[
+                styles.button,
+                (game.status !== 'scheduled' || !pick || parseFloat(amount) <= 0) && styles.buttonDisabled
+              ]}
+              onPress={handleSubmit}
+              disabled={game.status !== 'scheduled' || !pick || parseFloat(amount) <= 0}
+            >
+              <Text style={styles.buttonText}>Submit Prediction</Text>
+            </TouchableOpacity>
+            {game.status !== 'scheduled' && (
+              <Text style={styles.closedText}>Predictions closed for this game.</Text>
+            )}
+          </>
         )}
       </View>
     </KeyboardAvoidingView>
@@ -346,6 +389,30 @@ const styles = StyleSheet.create({
   },
   dropDownContainer: {
     borderColor: '#ccc',
+  },
+  predictionDetailBox: {
+    backgroundColor: '#f6f8fa',
+    borderRadius: 8,
+    padding: 14,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  predictionDetailText: {
+    fontSize: 16,
+    marginVertical: 2,
+    color: '#333',
+  },
+  pick: {
+    color: '#1976d2',
+    fontWeight: 'bold',
+  },
+  amount: {
+    color: '#388e3c',
+    fontWeight: 'bold',
+  },
+  pending: {
+    color: '#f9a825',
+    fontWeight: 'bold',
   },
 });
 

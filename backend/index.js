@@ -35,7 +35,6 @@ app.post('/predict', (req, res) => {
 
   user.balance -= amount;
   const prediction = {
-    id: Date.now().toString(),
     gameId,
     pick,
     amount,
