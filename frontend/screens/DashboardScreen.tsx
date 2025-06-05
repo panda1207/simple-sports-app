@@ -8,7 +8,7 @@ import { Game } from '../types/types';
 
 type RootStackParamList = {
   Dashboard: undefined;
-  GameDetail: { game: Game };
+  GameDetail: { gameId: string };
 };
 
 type DashboardScreenNavigationProp = StackNavigationProp<
@@ -54,7 +54,7 @@ const DashboardScreen = () => {
       keyExtractor={item => item.id}
       renderItem={({ item }) => (
         <TouchableOpacity
-          onPress={() => navigation.navigate('GameDetail', { game: item })}
+          onPress={() => navigation.navigate('GameDetail', { gameId: item.id })}
         >
           <GameCard game={item} />
         </TouchableOpacity>

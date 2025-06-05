@@ -11,6 +11,15 @@ app.get("/games", (req, res) => {
   res.json(data.games);
 });
 
+app.get("/games/:id", (req, res) => {
+  const gameId = req.params.id;
+  const game = data.games.find(g => g.id === gameId);
+  if (!game) {
+    return res.status(404).json({ error: 'Game not found' });
+  }
+  res.json(game);
+});
+
 app.get("/user", (req, res) => {
   res.json(data.user);
 });

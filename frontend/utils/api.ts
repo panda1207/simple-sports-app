@@ -6,6 +6,11 @@ export const getGames = async () => {
   return res.data;
 };
 
+export const getGame = async (gameId: string) => {
+  const res = await axios.get(`${BASE_URL}/games/${gameId}`);
+  return res.data;
+};
+
 export const getUser = async () => {
   const res = await axios.get(`${BASE_URL}/user`);
   return res.data;

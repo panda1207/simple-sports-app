@@ -1,22 +1,41 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, Button, TextInput, Alert } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { View, Text, Button, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { submitPrediction } from '../utils/api';
+import { getGame, submitPrediction } from '../utils/api';
 import { UserContext } from '../context/UserContext';
 import { Game } from '../types/types';
 
 type GameDetailScreenRouteParams = {
   GameDetail: {
-    game: Game;
+    gameId: string;
   };
 };
 
 const GameDetailScreen = () => {
   const route = useRoute<RouteProp<GameDetailScreenRouteParams, 'GameDetail'>>();
-  const { game } = route.params;
+  const { gameId } = route.params;
+  const [game, setGame] = useState<Game | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [pick, setPick] = useState('');
   const [amount, setAmount] = useState('');
   const { user } = useContext(UserContext);
+
+  useEffect(() => {
+    const fetchGame = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const data = await getGame(gameId);
+        setGame(data);
+      } catch {
+        setError('Failed to load game details');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchGame();
+  }, []);
 
   const handleSubmit = () => {
     Alert.alert(
@@ -40,6 +59,9 @@ const GameDetailScreen = () => {
     );
   };
 
+  if (loading) return <ActivityIndicator />;
+  if (error) return <Text>{error}</Text>;
+
   return (
     <View>
       <Text>
@@ -47,8 +69,8 @@ const GameDetailScreen = () => {
       </Text>
       <Text>Status: {game.status}</Text>
       <Text>Odds: </Text>
-      <Text>Spread: {game.odds.spread}</Text>
-      <Text>Favorite: {game.odds.favorite}</Text>
+      <Text>Spread: {game.odds?.spread}</Text>
+      <Text>Favorite: {game.odds?.favorite}</Text>
       <TextInput placeholder="Pick (home/away)" value={pick} onChangeText={setPick} />
       <TextInput placeholder="Amount" value={amount} onChangeText={setAmount} keyboardType="numeric" />
       <Button
