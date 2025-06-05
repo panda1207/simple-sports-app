@@ -36,12 +36,16 @@ const GameDetailScreen = () => {
       ]
     );
   };
-  
+
   return (
     <View>
-      <Text>{game.homeTeam} vs {game.awayTeam}</Text>
+      <Text>
+        {game.homeTeam.name} ({game.homeTeam.abbreviation}) vs {game.awayTeam.name} ({game.awayTeam.abbreviation})
+      </Text>
       <Text>Status: {game.status}</Text>
-      <Text>Odds: {game.odds}</Text>
+      <Text>Odds: </Text>
+      <Text>Spread: {game.odds.spread}</Text>
+      <Text>Favorite: {game.odds.favorite}</Text>
       <TextInput placeholder="Pick (home/away)" value={pick} onChangeText={setPick} />
       <TextInput placeholder="Amount" value={amount} onChangeText={setAmount} keyboardType="numeric" />
       <Button

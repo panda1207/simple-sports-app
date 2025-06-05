@@ -1,9 +1,18 @@
 export interface Game {
   id: string;
-  homeTeam: string;
-  awayTeam: string;
+  homeTeam: {
+    name: string;
+    abbreviation: string;
+  };
+  awayTeam: {
+    name: string;
+    abbreviation: string;
+  };
   status: string;
-  odds: string;
+  odds: {
+    spread: number;
+    favorite: string;
+  }
   winner?: string;
   homeScore?: number;
   awayScore?: number;
