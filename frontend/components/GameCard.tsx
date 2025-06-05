@@ -11,7 +11,6 @@ const statusGradients = {
   default: ['#f5f5f5', '#fff'],
 };
 
-
 const statusColors = {
   scheduled: '#1976d2',
   inProgress: '#f9a825',
