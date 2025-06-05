@@ -13,7 +13,7 @@ const ProfileScreen = () => {
       <Text>Predictions:</Text>
       <FlatList
         data={user.predictions}
-        keyExtractor={item => item.id}
+        keyExtractor={item => item?.gameId}
         renderItem={({ item }) => (
           <View>
             <Text>{item.gameId}: {item.pick} - {item.result} - ${item.amount}</Text>

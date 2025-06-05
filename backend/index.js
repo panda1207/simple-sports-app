@@ -34,7 +34,7 @@ app.post('/predict', (req, res) => {
   };
   user.predictions.push(prediction);
 
-  res.json({ success: true, user });
+  res.json({ success: true, message: 'Prediction placed successfully' });
 });
 
 app.listen(PORT, () => {

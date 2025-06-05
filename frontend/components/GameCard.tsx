@@ -17,8 +17,6 @@ const GameCard = ({ game }: { game: Game }) => {
     }
   };
 
-  console.log('GameCard logo', game.homeTeam.logo, game.awayTeam.logo);
-
   return (
     <View style={styles.card}>
       <View style={styles.row}>

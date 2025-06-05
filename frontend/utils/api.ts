@@ -11,7 +11,13 @@ export const getUser = async () => {
   return res.data;
 };
 
-export const submitPrediction = async (prediction: any, pick: string, p0: number) => {
-  const res = await axios.post(`${BASE_URL}/predict`, prediction);
+export const submitPrediction = async (userId: string, prediction: any, pick: string, p0: number) => {
+  const body = {
+    userId,
+    prediction,
+    pick,
+    amount: p0
+  };
+  const res = await axios.post(`${BASE_URL}/predict`, body);
   return res.data;
 };

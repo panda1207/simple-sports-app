@@ -16,7 +16,7 @@ const GameDetailScreen = () => {
   const { game } = route.params;
   const [pick, setPick] = useState('');
   const [amount, setAmount] = useState('');
-  const { user, setUser } = useContext(UserContext);
+  const { user } = useContext(UserContext);
 
   const handleSubmit = () => {
     Alert.alert(
@@ -26,9 +26,12 @@ const GameDetailScreen = () => {
         { text: 'Cancel', style: 'cancel' },
         { text: 'OK', onPress: async () => {
           try {
-            const res = await submitPrediction(game.id, pick, Number(amount));
-            setUser(res.user);
-            Alert.alert('Prediction submitted!');
+            const res = await submitPrediction(user.id, game.id, pick, Number(amount));
+            if (res.success) {
+              Alert.alert('Success', res.message);
+            } else {
+              Alert.alert(res.error);
+            }
           } catch (e) {
             Alert.alert('Error', 'Failed to submit prediction');
           }
