@@ -1,0 +1,1 @@
+export default function GameDetailScreen() { return null; }
