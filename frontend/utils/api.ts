@@ -11,7 +11,7 @@ export const getUser = async () => {
   return res.data;
 };
 
-export const submitPrediction = async (prediction: any) => {
+export const submitPrediction = async (prediction: any, pick: string, p0: number) => {
   const res = await axios.post(`${BASE_URL}/predict`, prediction);
   return res.data;
 };
