@@ -3,10 +3,16 @@ export interface Game {
   homeTeam: {
     name: string;
     abbreviation: string;
+    score?: number;
+    record?: string;
+    logo?: string;
   };
   awayTeam: {
     name: string;
     abbreviation: string;
+    score?: number;
+    record?: string;
+    logo?: string;
   };
   status: string;
   odds: {
@@ -14,8 +20,6 @@ export interface Game {
     favorite: string;
   }
   winner?: string;
-  homeScore?: number;
-  awayScore?: number;
   period?: string;
   clock?: string;
 }

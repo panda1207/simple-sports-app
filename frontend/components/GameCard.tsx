@@ -1,7 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Game } from '../types/types';
 
-const GameCard = ({ game }) => {
+const GameCard = ({ game }: { game: Game }) => {
   const renderStatus = () => {
     switch (game.status) {
       case 'scheduled':
@@ -15,30 +17,37 @@ const GameCard = ({ game }) => {
     }
   };
 
+  console.log('GameCard logo', game.homeTeam.logo, game.awayTeam.logo);
+
   return (
     <View style={styles.card}>
-      <View style={styles.card}>
-        <View style={styles.row}>
-          <View style={styles.column}>
-            <Text style={styles.abbreviation}>{game.homeTeam.abbreviation}</Text>
-            <Text style={styles.name}>{game.homeTeam.name}</Text>
+      <View style={styles.row}>
+        <View style={styles.teamsContainer}>
+          <View style={styles.row}>
+            <View style={styles.column}>
+              <Image source={{ uri: game.homeTeam.logo }} style={{ width: 40, height: 40 }} />
+              <Text style={styles.abbreviation}>{game.homeTeam.abbreviation}</Text>
+              <Text style={styles.name}>{game.homeTeam.name}</Text>
+            </View>
+            <View style={styles.vsContainer}>
+              <Text style={styles.vs}>vs</Text>
+            </View>
+            <View style={styles.column}>
+              <Image source={{ uri: game.awayTeam.logo }} style={{ width: 40, height: 40 }} />
+              <Text style={styles.abbreviation}>{game.awayTeam.abbreviation}</Text>
+              <Text style={styles.name}>{game.awayTeam.name}</Text>
+            </View>
           </View>
-          <View style={styles.vsContainer}>
-            <Text style={styles.vs}>vs</Text>
-          </View>
-          <View style={styles.column}>
-            <Text style={styles.abbreviation}>{game.awayTeam.abbreviation}</Text>
-            <Text style={styles.name}>{game.awayTeam.name}</Text>
-          </View>
+          {renderStatus()}
+          {game.status === 'final' && (
+            <Text style={styles.teamInfo}>Winner: {game.winner}</Text>
+          )}
+          {game.status === 'inProgress' && (
+            <Text style={styles.teamInfo}>Score: {game.homeTeam.score} - {game.awayTeam.score} | {game.period} | {game.clock}</Text>
+          )}
         </View>
+        <Ionicons name="chevron-forward" size={28} color="#888" style={styles.chevron} />
       </View>
-      {renderStatus()}
-      {game.status === 'final' && (
-        <Text>Winner: {game.winner}</Text>
-      )}
-      {game.status === 'in_progress' && (
-        <Text>Score: {game.homeScore} - {game.awayScore} | {game.period} | {game.clock}</Text>
-      )}
     </View>
   );
 };
@@ -50,20 +59,29 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff', 
     borderRadius: 8, 
     elevation: 2, 
-    alignItems: 'center'
+    alignItems: 'stretch'
   },
   teams: { 
     fontWeight: 'bold', 
-    fontSize: 16 
+    fontSize: 16,
+    textAlign: 'center',
+  },
+  teamInfo: {
+    textAlign: 'center',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+  },
+  teamsContainer: {
+    flex: 1,
+    gap: 8,
   },
   column: {
     flex: 4,
     alignItems: 'center',
+    gap: 4,
   },
   vsContainer: {
     flex: 1,
@@ -80,6 +98,10 @@ const styles = StyleSheet.create({
   vs: {
     fontSize: 16,
     fontWeight: '600',
+  },
+  chevron: {
+    marginLeft: 12,
+    alignSelf: 'center',
   },
 });
 

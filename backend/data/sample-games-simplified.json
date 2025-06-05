@@ -7,12 +7,14 @@
       "homeTeam": {
         "name": "Los Angeles Lakers",
         "abbreviation": "LAL",
-        "record": "42-28"
+        "record": "42-28",
+        "logo": "https://content.sportslogos.net/logos/6/237/full/los_angeles_lakers_logo_primary_2024_sportslogosnet-7324.png"
       },
       "awayTeam": {
         "name": "Boston Celtics",
         "abbreviation": "BOS",
-        "record": "45-25"
+        "record": "45-25",
+        "logo": "https://content.sportslogos.net/logos/6/213/full/boston_celtics_logo_primary_19977628.png"
       },
       "odds": {
         "spread": "+3.5",
@@ -28,13 +30,15 @@
         "name": "Golden State Warriors",
         "abbreviation": "GSW",
         "record": "38-32",
-        "score": 78
+        "score": 78,
+        "logo": "https://content.sportslogos.net/logos/6/235/full/3152_golden_state_warriors-primary-2020.png"
       },
       "awayTeam": {
         "name": "Dallas Mavericks",
         "abbreviation": "DAL",
         "record": "40-30",
-        "score": 81
+        "score": 81,
+        "logo": "https://content.sportslogos.net/logos/6/228/full/3463_dallas_mavericks-primary-2018.png"
       },
       "odds": {
         "spread": "-2.5",
@@ -48,13 +52,15 @@
         "name": "Miami Heat",
         "abbreviation": "MIA",
         "record": "36-34",
-        "score": 112
+        "score": 112,
+        "logo": "https://content.sportslogos.net/logos/6/214/full/burm5gh2wvjti3xhei5h16k8e.gif"
       },
       "awayTeam": {
         "name": "New York Knicks",
         "abbreviation": "NYK",
         "record": "35-35",
-        "score": 103
+        "score": 103,
+        "logo": "https://content.sportslogos.net/logos/6/216/full/new_york_knicks_logo_primary_2024_sportslogosnet-7170.png"
       },
       "winner": "MIA"
     }
