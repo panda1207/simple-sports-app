@@ -110,3 +110,7 @@ MIT
 
 - Built with [React Native](https://reactnative.dev/) and [Expo](https://expo.dev/)
 - Icons by [Expo Vector Icons](https://icons.expo.fyi/)
+
+## AI Usage
+
+- This project is assisted with Github Copilot
