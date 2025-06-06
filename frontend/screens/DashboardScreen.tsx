@@ -38,18 +38,21 @@ const DashboardScreen = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
     loadGames();
-    // Poll every 10 seconds
-    const interval = setInterval(() => {
-      loadGames();
-    }, 10000);
-
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    loadGames();
+    // Poll every 10 seconds
+      const interval = setInterval(async () => {
+      try {
+        const data = await getGames();
+        setGames(data);
+      } catch {
+        setError('Failed to load games');
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const onRefresh = async () => {
