@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { getGames } from '../utils/api';
 import GameCard from '../components/GameCard';
+import SkeletonCard from '../components/SkeletonCard';
 
 type RootStackParamList = {
   Dashboard: undefined;
@@ -31,7 +32,9 @@ const DashboardScreen = () => {
     } catch {
       setError('Failed to load games');
     }
-    setLoading(false);
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   };
 
   useEffect(() => {
@@ -55,8 +58,22 @@ const DashboardScreen = () => {
     setRefreshing(false);
   };
 
-  if (loading) return <ActivityIndicator />;
-  if (error) return <Text>{error}</Text>;
+  if (loading) {
+    return (
+      <FlatList
+        data={[1, 2, 3]}
+        keyExtractor={item => item.toString()}
+        renderItem={() => <SkeletonCard />}
+        contentContainerStyle={{ paddingVertical: 8 }}
+      />
+    );
+  }
+
+  if (error) {
+    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <Text style={{ color: 'red' }}>{error}</Text>
+    </View>
+  }
 
   return (
     <FlatList

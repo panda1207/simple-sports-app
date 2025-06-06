@@ -6,6 +6,8 @@ import { UserContext } from '../context/UserContext';
 import { Game } from '../types/types';
 import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SkeletonCard from '../components/SkeletonCard';
+import { FlatList } from 'react-native-gesture-handler';
 
 type GameDetailScreenRouteParams = {
   GameDetail: {
@@ -44,9 +46,11 @@ const GameDetailScreen = () => {
         setGame(data);
       } catch {
         setError('Failed to load game details');
-      } finally {
-        setLoading(false);
       }
+
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     };
     fetchGame();
   }, []);
@@ -165,7 +169,18 @@ const GameDetailScreen = () => {
     );
   };
 
-  if (loading) return <ActivityIndicator style={{ flex: 1, justifyContent: 'center' }} />;
+  if (loading) {
+    return (
+      <FlatList
+        data={[1, 2]}
+        keyExtractor={item => item.toString()}
+        renderItem={() => <SkeletonCard />}
+        contentContainerStyle={{ paddingVertical: 8 }}
+      />
+    );
+  }
+
+  
   if (error) return <Text style={styles.error}>{error}</Text>;
   if (!game) return null;
 

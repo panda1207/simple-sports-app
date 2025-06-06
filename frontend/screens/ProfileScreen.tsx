@@ -4,14 +4,17 @@ import { UserContext } from '../context/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import SkeletonCard from '../components/SkeletonCard';
 
 const ProfileScreen = () => {
   const { user } = useContext(UserContext);
   const navigation = useNavigation<any>();
   const [combinedPredictions, setCombinedPredictions] = useState(user.predictions);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadSavedPredictions = async () => {
+      setLoading(true);
       try {
         const keys = await AsyncStorage.getAllKeys();
         const predictionKeys = keys.filter(key => key.startsWith('prediction_'));
@@ -35,10 +38,25 @@ const ProfileScreen = () => {
       } catch (e) {
         setCombinedPredictions(user.predictions);
       }
+
+      setTimeout(() => {
+        setLoading(false);
+      }, 1000);
     };
 
     loadSavedPredictions();
   }, [user.predictions]);
+
+    if (loading) {
+    return (
+      <FlatList
+        data={[1, 2]}
+        keyExtractor={item => item.toString()}
+        renderItem={() => <SkeletonCard />}
+        contentContainerStyle={{ paddingVertical: 8 }}
+      />
+    );
+  }
 
   return (
     <View style={styles.container}>
