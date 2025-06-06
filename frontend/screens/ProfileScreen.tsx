@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 import { UserContext } from '../context/UserContext';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SkeletonCard from '../components/SkeletonCard';
+import BasketballImage from '../assets/images/basketball_3.jpg';
 
 const ProfileScreen = () => {
   const { user } = useContext(UserContext);
@@ -49,64 +50,74 @@ const ProfileScreen = () => {
 
     if (loading) {
     return (
-      <FlatList
-        data={[1, 2]}
-        keyExtractor={item => item.toString()}
-        renderItem={() => <SkeletonCard />}
-        contentContainerStyle={{ paddingVertical: 8 }}
-      />
+      <ImageBackground
+        source={BasketballImage}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+        <FlatList
+          data={[1, 2]}
+          keyExtractor={item => item.toString()}
+          renderItem={() => <SkeletonCard />}
+          contentContainerStyle={{ paddingVertical: 8 }}
+        />
+      </ImageBackground>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.profileBox}>
-        <Text style={styles.username}>{user.username}</Text>
-        <Text style={styles.balance}>Balance: <Text style={styles.balanceAmount}>${user.balance}</Text></Text>
-        <View style={styles.statsRow}>
-          <Text style={styles.stat}>Wins: <Text style={styles.statValue}>{user.stats.wins}</Text></Text>
-          <Text style={styles.stat}>Losses: <Text style={styles.statValue}>{user.stats.losses}</Text></Text>
-          <Text style={styles.stat}>Pending: <Text style={styles.statValue}>{user.stats.pending}</Text></Text>
+    <ImageBackground
+      source={BasketballImage}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <View style={styles.profileBox}>
+          <Text style={styles.username}>{user.username}</Text>
+          <Text style={styles.balance}>Balance: <Text style={styles.balanceAmount}>${user.balance}</Text></Text>
+          <View style={styles.statsRow}>
+            <Text style={styles.stat}>Wins: <Text style={styles.statValue}>{user.stats.wins}</Text></Text>
+            <Text style={styles.stat}>Losses: <Text style={styles.statValue}>{user.stats.losses}</Text></Text>
+            <Text style={styles.stat}>Pending: <Text style={styles.statValue}>{user.stats.pending}</Text></Text>
+          </View>
         </View>
-      </View>
-      <Text style={styles.sectionTitle}>Predictions</Text>
-      <FlatList
-        data={combinedPredictions}
-        keyExtractor={item => item.gameId + '_' + item.pick + '_' + item.amount}
-        contentContainerStyle={styles.listContent}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.predictionCard}
-            onPress={() =>
-              navigation.navigate('Dashboard', {
-                screen: 'GameDetail',
-                params: { gameId: item.gameId },
-              })
-            }
-          >
-            <View style={styles.predictionRow}>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.predictionGame}>{item.gameId}</Text>
-                <Text style={styles.predictionDetail}>
-                  Pick: <Text style={styles.pick}>{item.pick}</Text> | 
-                  Result: <Text style={item.result === 'win' ? styles.win : item.result === 'loss' ? styles.loss : styles.pending}>{item.result}</Text> | 
-                  Amount: <Text style={styles.amount}>${item.amount}</Text>
-                </Text>
+        <Text style={styles.sectionTitle}>Predictions</Text>
+        <FlatList
+          data={combinedPredictions}
+          keyExtractor={item => item.gameId + '_' + item.pick + '_' + item.amount}
+          contentContainerStyle={styles.listContent}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={styles.predictionCard}
+              onPress={() =>
+                navigation.navigate('Dashboard', {
+                  screen: 'GameDetail',
+                  params: { gameId: item.gameId },
+                })
+              }
+            >
+              <View style={styles.predictionRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.predictionGame}>{item.gameId}</Text>
+                  <Text style={styles.predictionDetail}>
+                    Pick: <Text style={styles.pick}>{item.pick}</Text> | 
+                    Result: <Text style={item.result === 'win' ? styles.win : item.result === 'loss' ? styles.loss : styles.pending}>{item.result}</Text> | 
+                    Amount: <Text style={styles.amount}>${item.amount}</Text>
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={22} color="#888" style={styles.chevron} />
               </View>
-              <Ionicons name="chevron-forward" size={22} color="#888" style={styles.chevron} />
-            </View>
-          </TouchableOpacity>
-        )}
-        ListEmptyComponent={<Text style={styles.emptyText}>No predictions yet.</Text>}
-      />
-    </View>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={<Text style={styles.emptyText}>No predictions yet.</Text>}
+        />
+      </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#f6f8fa',
     padding: 16,
   },
   profileBox: {

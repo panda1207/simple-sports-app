@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, RefreshControl, TouchableOpacity, Pressable, StyleSheet } from 'react-native';
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, Pressable, StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { getGames } from '../utils/api';
 import GameCard from '../components/GameCard';
 import SkeletonCard from '../components/SkeletonCard';
+import BasketballImage from '../assets/images/basketball_1.jpg';
 
 const STATUS_FILTERS = [
   { label: 'Upcoming', value: 'scheduled' },
@@ -72,11 +73,71 @@ const DashboardScreen = () => {
 
   if (loading) {
     return (
+      <ImageBackground
+        source={BasketballImage}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+        <FlatList
+          data={[1, 2, 3]}
+          keyExtractor={item => item.toString()}
+          renderItem={() => <SkeletonCard />}
+          contentContainerStyle={{ paddingVertical: 8 }}
+          ListHeaderComponent={
+            <View style={styles.filterRow}>
+              {STATUS_FILTERS.map(f => (
+                <Pressable
+                  key={f.value}
+                  style={[
+                    styles.filterButton,
+                    statusFilter === f.value && styles.filterButtonActive,
+                  ]}
+                  onPress={() => setStatusFilter(f.value)}
+                >
+                  <Text
+                    style={[
+                      styles.filterButtonText,
+                      statusFilter === f.value && styles.filterButtonTextActive,
+                    ]}
+                  >
+                    {f.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          }
+        />
+      </ImageBackground>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ color: 'red' }}>{error}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <ImageBackground
+      source={BasketballImage}
+      style={{ flex: 1 }}
+      resizeMode="cover"
+    >
       <FlatList
-        data={[1, 2, 3]}
-        keyExtractor={item => item.toString()}
-        renderItem={() => <SkeletonCard />}
-        contentContainerStyle={{ paddingVertical: 8 }}
+        data={filteredGames}
+        keyExtractor={item => item.id}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            onPress={() => navigation.navigate('GameDetail', { gameId: item.id })}
+          >
+            <GameCard game={item} />
+          </TouchableOpacity>
+        )}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         ListHeaderComponent={
           <View style={styles.filterRow}>
             {STATUS_FILTERS.map(f => (
@@ -101,55 +162,7 @@ const DashboardScreen = () => {
           </View>
         }
       />
-    );
-  }
-
-  if (error) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: 'red' }}>{error}</Text>
-      </View>
-    );
-  }
-
-  return (
-    <FlatList
-      data={filteredGames}
-      keyExtractor={item => item.id}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          onPress={() => navigation.navigate('GameDetail', { gameId: item.id })}
-        >
-          <GameCard game={item} />
-        </TouchableOpacity>
-      )}
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      }
-      ListHeaderComponent={
-        <View style={styles.filterRow}>
-          {STATUS_FILTERS.map(f => (
-            <Pressable
-              key={f.value}
-              style={[
-                styles.filterButton,
-                statusFilter === f.value && styles.filterButtonActive,
-              ]}
-              onPress={() => setStatusFilter(f.value)}
-            >
-              <Text
-                style={[
-                  styles.filterButtonText,
-                  statusFilter === f.value && styles.filterButtonTextActive,
-                ]}
-              >
-                {f.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      }
-    />
+    </ImageBackground>
   );
 };
 

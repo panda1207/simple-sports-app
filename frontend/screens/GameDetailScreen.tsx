@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { View, Text, TextInput, Alert, ActivityIndicator, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Image } from 'react-native';
+import { View, Text, TextInput, Alert, ImageBackground, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Image } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { getGame, submitPrediction } from '../utils/api';
 import { UserContext } from '../context/UserContext';
@@ -8,6 +8,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import SkeletonCard from '../components/SkeletonCard';
 import { FlatList } from 'react-native-gesture-handler';
+import BasketballImage from '../assets/images/basketball_2.jpg';
 
 type GameDetailScreenRouteParams = {
   GameDetail: {
@@ -191,12 +192,18 @@ const GameDetailScreen = () => {
 
   if (loading) {
     return (
-      <FlatList
-        data={[1, 2]}
-        keyExtractor={item => item.toString()}
-        renderItem={() => <SkeletonCard />}
-        contentContainerStyle={{ paddingVertical: 8 }}
-      />
+      <ImageBackground
+        source={BasketballImage}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+        <FlatList
+          data={[1, 2]}
+          keyExtractor={item => item.toString()}
+          renderItem={() => <SkeletonCard />}
+          contentContainerStyle={{ paddingVertical: 8 }}
+        />
+      </ImageBackground>
     );
   }
 
@@ -205,97 +212,102 @@ const GameDetailScreen = () => {
   if (!game) return null;
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <ImageBackground
+      source={BasketballImage}
+      style={{ flex: 1 }}
+      resizeMode="cover"
     >
-      <View style={styles.card}>
-        <View style={styles.teamsRow}>
-          <View style={styles.teamCol}>
-            <Image source={{ uri: game.homeTeam.logo }} style={styles.logo} />
-            <Text style={styles.abbreviation}>{game.homeTeam.abbreviation}</Text>
-            <Text style={styles.teamName}>{game.homeTeam.name}</Text>
-          </View>
-          <Text style={styles.vs}>vs</Text>
-          <View style={styles.teamCol}>
-            <Image source={{ uri: game.awayTeam.logo }} style={styles.logo} />
-            <Text style={styles.abbreviation}>{game.awayTeam.abbreviation}</Text>
-            <Text style={styles.teamName}>{game.awayTeam.name}</Text>
-          </View>
-        </View>
-        {renderStatus()}
-        {game.odds && (
-          <View style={styles.oddsBox}>
-            <Text style={styles.oddsTitle}>Odds</Text>
-            <Text style={styles.oddsDetail}>Spread: <Text style={styles.oddsValue}>{game.odds?.spread}</Text></Text>
-            <Text style={styles.oddsDetail}>Favorite: <Text style={styles.oddsValue}>{game.odds?.favorite}</Text></Text>
-          </View>
-        )}
-      </View>
-      <View style={styles.form}>
-        <Text style={styles.formTitle}>Your Prediction</Text>
-        {isSubmitted && submittedPrediction ? (
-          <View style={styles.predictionDetailBox}>
-            <Text style={styles.predictionDetailText}>
-              Pick: <Text style={styles.pick}>{items.find(item => item.value === submittedPrediction.pick)?.label || submittedPrediction.pick}</Text>
-            </Text>
-            <Text style={styles.predictionDetailText}>
-              Amount: <Text style={styles.amount}>${submittedPrediction.amount}</Text>
-            </Text>
-            <Text style={styles.predictionDetailText}>
-              Status: <Text style={styles.pending}>Pending</Text>
-            </Text>
-          </View>
-        ) : (
-          <>
-            <View style={styles.pickerWrapper}>
-              <DropDownPicker
-                open={open}
-                value={pick}
-                items={items}
-                setOpen={setOpen}
-                setValue={setPick}
-                setItems={setItems}
-                disabled={game.status !== 'scheduled'}
-                placeholder="Select your pick..."
-                style={[
-                  styles.picker,
-                  game.status !== 'scheduled' && styles.pickerDisabled
-                ]}
-                dropDownContainerStyle={styles.dropDownContainer}
-              />
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <View style={styles.card}>
+          <View style={styles.teamsRow}>
+            <View style={styles.teamCol}>
+              <Image source={{ uri: game.homeTeam.logo }} style={styles.logo} />
+              <Text style={styles.abbreviation}>{game.homeTeam.abbreviation}</Text>
+              <Text style={styles.teamName}>{game.homeTeam.name}</Text>
             </View>
-            <TextInput
-              style={styles.input}
-              placeholder="Amount"
-              value={amount}
-              onChangeText={setAmount}
-              keyboardType="numeric"
-            />
-            <TouchableOpacity
-              style={[
-                styles.button,
-                (game.status !== 'scheduled' || !pick || parseFloat(amount) <= 0) && styles.buttonDisabled
-              ]}
-              onPress={handleSubmit}
-              disabled={game.status !== 'scheduled' || !pick || parseFloat(amount) <= 0}
-            >
-              <Text style={styles.buttonText}>Submit Prediction</Text>
-            </TouchableOpacity>
-            {game.status !== 'scheduled' && (
-              <Text style={styles.closedText}>Predictions closed for this game.</Text>
-            )}
-          </>
-        )}
-      </View>
-    </KeyboardAvoidingView>
+            <Text style={styles.vs}>vs</Text>
+            <View style={styles.teamCol}>
+              <Image source={{ uri: game.awayTeam.logo }} style={styles.logo} />
+              <Text style={styles.abbreviation}>{game.awayTeam.abbreviation}</Text>
+              <Text style={styles.teamName}>{game.awayTeam.name}</Text>
+            </View>
+          </View>
+          {renderStatus()}
+          {game.odds && (
+            <View style={styles.oddsBox}>
+              <Text style={styles.oddsTitle}>Odds</Text>
+              <Text style={styles.oddsDetail}>Spread: <Text style={styles.oddsValue}>{game.odds?.spread}</Text></Text>
+              <Text style={styles.oddsDetail}>Favorite: <Text style={styles.oddsValue}>{game.odds?.favorite}</Text></Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.form}>
+          <Text style={styles.formTitle}>Your Prediction</Text>
+          {isSubmitted && submittedPrediction ? (
+            <View style={styles.predictionDetailBox}>
+              <Text style={styles.predictionDetailText}>
+                Pick: <Text style={styles.pick}>{items.find(item => item.value === submittedPrediction.pick)?.label || submittedPrediction.pick}</Text>
+              </Text>
+              <Text style={styles.predictionDetailText}>
+                Amount: <Text style={styles.amount}>${submittedPrediction.amount}</Text>
+              </Text>
+              <Text style={styles.predictionDetailText}>
+                Status: <Text style={styles.pending}>Pending</Text>
+              </Text>
+            </View>
+          ) : (
+            <>
+              <View style={styles.pickerWrapper}>
+                <DropDownPicker
+                  open={open}
+                  value={pick}
+                  items={items}
+                  setOpen={setOpen}
+                  setValue={setPick}
+                  setItems={setItems}
+                  disabled={game.status !== 'scheduled'}
+                  placeholder="Select your pick..."
+                  style={[
+                    styles.picker,
+                    game.status !== 'scheduled' && styles.pickerDisabled
+                  ]}
+                  dropDownContainerStyle={styles.dropDownContainer}
+                />
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="Amount"
+                value={amount}
+                onChangeText={setAmount}
+                keyboardType="numeric"
+              />
+              <TouchableOpacity
+                style={[
+                  styles.button,
+                  (game.status !== 'scheduled' || !pick || parseFloat(amount) <= 0) && styles.buttonDisabled
+                ]}
+                onPress={handleSubmit}
+                disabled={game.status !== 'scheduled' || !pick || parseFloat(amount) <= 0}
+              >
+                <Text style={styles.buttonText}>Submit Prediction</Text>
+              </TouchableOpacity>
+              {game.status !== 'scheduled' && (
+                <Text style={styles.closedText}>Predictions closed for this game.</Text>
+              )}
+            </>
+          )}
+        </View>
+      </KeyboardAvoidingView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f6f8fa',
     padding: 16,
   },
   card: {
