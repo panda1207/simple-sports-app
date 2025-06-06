@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, RefreshControl, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, RefreshControl, TouchableOpacity, Pressable, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import { getGames } from '../utils/api';
 import GameCard from '../components/GameCard';
 import SkeletonCard from '../components/SkeletonCard';
+
+const STATUS_FILTERS = [
+  { label: 'Upcoming', value: 'scheduled' },
+  { label: 'Live', value: 'inProgress' },
+  { label: 'Completed', value: 'final' },
+];
 
 type RootStackParamList = {
   Dashboard: undefined;
@@ -21,6 +27,8 @@ const DashboardScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
+
+  const [statusFilter, setStatusFilter] = useState('scheduled');
   const navigation = useNavigation<DashboardScreenNavigationProp>();
 
   const loadGames = async () => {
@@ -42,8 +50,7 @@ const DashboardScreen = () => {
   }, []);
 
   useEffect(() => {
-    // Poll every 10 seconds
-      const interval = setInterval(async () => {
+    const interval = setInterval(async () => {
       try {
         const data = await getGames();
         setGames(data);
@@ -61,6 +68,8 @@ const DashboardScreen = () => {
     setRefreshing(false);
   };
 
+  const filteredGames = games.filter(game => game.status === statusFilter);
+
   if (loading) {
     return (
       <FlatList
@@ -68,19 +77,44 @@ const DashboardScreen = () => {
         keyExtractor={item => item.toString()}
         renderItem={() => <SkeletonCard />}
         contentContainerStyle={{ paddingVertical: 8 }}
+        ListHeaderComponent={
+          <View style={styles.filterRow}>
+            {STATUS_FILTERS.map(f => (
+              <Pressable
+                key={f.value}
+                style={[
+                  styles.filterButton,
+                  statusFilter === f.value && styles.filterButtonActive,
+                ]}
+                onPress={() => setStatusFilter(f.value)}
+              >
+                <Text
+                  style={[
+                    styles.filterButtonText,
+                    statusFilter === f.value && styles.filterButtonTextActive,
+                  ]}
+                >
+                  {f.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        }
       />
     );
   }
 
   if (error) {
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{ color: 'red' }}>{error}</Text>
-    </View>
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{ color: 'red' }}>{error}</Text>
+      </View>
+    );
   }
 
   return (
     <FlatList
-      data={games}
+      data={filteredGames}
       keyExtractor={item => item.id}
       renderItem={({ item }) => (
         <TouchableOpacity
@@ -92,8 +126,59 @@ const DashboardScreen = () => {
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
+      ListHeaderComponent={
+        <View style={styles.filterRow}>
+          {STATUS_FILTERS.map(f => (
+            <Pressable
+              key={f.value}
+              style={[
+                styles.filterButton,
+                statusFilter === f.value && styles.filterButtonActive,
+              ]}
+              onPress={() => setStatusFilter(f.value)}
+            >
+              <Text
+                style={[
+                  styles.filterButtonText,
+                  statusFilter === f.value && styles.filterButtonTextActive,
+                ]}
+              >
+                {f.label}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      }
     />
   );
 };
+
+const styles = StyleSheet.create({
+  filterRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 8,
+    marginTop: 8,
+    gap: 8,
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#e0e0e0',
+    marginHorizontal: 4,
+  },
+  filterButtonActive: {
+    backgroundColor: '#1976d2',
+  },
+  filterButtonText: {
+    color: '#333',
+    fontWeight: '500',
+  },
+  filterButtonTextActive: {
+    color: '#fff',
+    fontWeight: '700',
+  },
+});
 
 export default DashboardScreen;

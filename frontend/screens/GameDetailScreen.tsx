@@ -39,7 +39,6 @@ const GameDetailScreen = () => {
 
   useEffect(() => {
     const fetchGame = async () => {
-      AsyncStorage.clear(); // Clear storage for testing purposes
       setLoading(true);
       setError('');
       try {
