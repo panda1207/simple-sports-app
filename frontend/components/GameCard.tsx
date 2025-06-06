@@ -49,13 +49,13 @@ const GameCard = ({ game }: { game: Game }) => {
     let text = '';
     switch (game.status) {
       case 'scheduled':
-        text = 'Scheduled';
+        text = 'Upcoming';
         break;
       case 'inProgress':
-        text = 'In Progress';
+        text = 'Live';
         break;
       case 'final':
-        text = 'Final';
+        text = 'Completed';
         break;
       default:
         text = 'Unknown Status';

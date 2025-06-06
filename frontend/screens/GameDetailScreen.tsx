@@ -39,6 +39,7 @@ const GameDetailScreen = () => {
 
   useEffect(() => {
     const fetchGame = async () => {
+      AsyncStorage.clear(); // Clear storage for testing purposes
       setLoading(true);
       setError('');
       try {
@@ -75,31 +76,50 @@ const GameDetailScreen = () => {
     };
   }, [gameId, game?.status]);
 
-    useEffect(() => {
-    if (game && game.homeTeam && game.awayTeam) {
+  useEffect(() => {
+    if (game && game.homeTeam && game.awayTeam && game.odds?.spread) {
+      const favorite = game.odds.favorite;
+      const spread = game.odds.spread;
+      const homeIsFavorite = game.homeTeam.abbreviation === favorite;
+      const homeSpread = homeIsFavorite ? spread : getOppositeSpread(String(spread));
+      const awaySpread = homeIsFavorite ? getOppositeSpread(String(spread)) : spread;
+
       const newItems = [
         { label: 'Select your pick...', value: '' },
-        { label: game.homeTeam.name, value: game.homeTeam.abbreviation },
-        { label: game.awayTeam.name, value: game.awayTeam.abbreviation },
+        { label: `${game.homeTeam.name} (Winner)`, value: game.homeTeam.abbreviation },
+        { label: `${game.awayTeam.name} (Winner)`, value: game.awayTeam.abbreviation },
+        { label: `${game.homeTeam.name} (${homeSpread} Spread)`, value: `${game.homeTeam.abbreviation}_spread` },
+        { label: `${game.awayTeam.name} (${awaySpread} Spread)`, value: `${game.awayTeam.abbreviation}_spread` },
       ];
-      if (game.odds?.spread) {
-        newItems.push({ label: `Spread (${game.odds.spread})`, value: 'spread' });
-      }
+      setItems(newItems);
+    } else if (game && game.homeTeam && game.awayTeam) {
+      const newItems = [
+        { label: 'Select your pick...', value: '' },
+        { label: `${game.homeTeam.name} (Winner)`, value: game.homeTeam.abbreviation },
+        { label: `${game.awayTeam.name} (Winner)`, value: game.awayTeam.abbreviation },
+      ];
       setItems(newItems);
     }
   }, [game]);
 
+  const getOppositeSpread = (spread: string) => {
+    if (!spread) return '';
+    if (spread.startsWith('+')) return '-' + spread.slice(1);
+    if (spread.startsWith('-')) return '+' + spread.slice(1);
+    return spread;
+  }
+
   const renderStatus = () => {
     let text = '';
-    switch (game?.status) {
+    switch (game.status) {
       case 'scheduled':
-        text = 'Scheduled';
+        text = 'Upcoming';
         break;
       case 'inProgress':
-        text = 'In Progress';
+        text = 'Live';
         break;
       case 'final':
-        text = 'Final';
+        text = 'Completed';
         break;
       default:
         text = 'Unknown Status';
@@ -138,9 +158,10 @@ const GameDetailScreen = () => {
   }, [gameId]);
 
   const handleSubmit = () => {
+    const pickLabel = items.find(item => item.value === pick)?.label || pick;
     Alert.alert(
       'Confirm Prediction',
-      `Pick: ${pick}\nAmount: $${amount}`,
+      `Pick: ${pickLabel}\nAmount: $${amount}`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'OK', onPress: async () => {
@@ -217,7 +238,7 @@ const GameDetailScreen = () => {
         {isSubmitted && submittedPrediction ? (
           <View style={styles.predictionDetailBox}>
             <Text style={styles.predictionDetailText}>
-              Pick: <Text style={styles.pick}>{submittedPrediction.pick}</Text>
+              Pick: <Text style={styles.pick}>{items.find(item => item.value === submittedPrediction.pick)?.label || submittedPrediction.pick}</Text>
             </Text>
             <Text style={styles.predictionDetailText}>
               Amount: <Text style={styles.amount}>${submittedPrediction.amount}</Text>
